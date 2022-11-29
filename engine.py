@@ -70,8 +70,5 @@ canvas.bind("<MouseWheel>", zoom)
 canvas.create_polygon(10, 10, 200, 50, 90, 150, 50, 80, 120, 55, fill='red', outline='blue')
 canvas.create_rectangle(40,30,110,50)
 
-
-
-print(canvas.find_all())
  
 root.mainloop()
