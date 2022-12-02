@@ -27,7 +27,6 @@ canvas = Canvas(root)
 canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 canvas.bind("<Button-1>", savePosn)
 canvas.bind("<B1-Motion>", move)
-canvas.bind("<MouseWheel>", zoom)
 canvas.create_polygon(10, 10, 200, 50, 90, 150, 50, 80, 120, 55, fill='red', outline='blue')
 canvas.create_rectangle(40,30,110,50)
 
