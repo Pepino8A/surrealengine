@@ -29,23 +29,24 @@ def zoom(event):
     zoomin_multiplier = 10/9
     zoomout_mulitplier = 1/(10/9)
 
-    if maxzoom < zoomlevel < minzoom: 
+    if maxzoom < zoomlevel < minzoom: #normaler zoom
         match event.delta:
             case 120: #reinzoomen
-                zoomer(10/9,event.x,event.y)
+                zoomer(zoomin_multiplier,event.x,event.y)
                 zoomlevel += 1
             case -120: #rauszoomen
-                zoomer(9/10,event.x,event.y)
+                zoomer(zoomout_mulitplier,event.x,event.y)
                 zoomlevel -= 1
             case _:
                 raise ValueError("Mausinput macht komische dinge")
-    if zoomlevel == maxzoom and event.delta == 120:
-        zoomer(10/9,event.x,event.y)
+
+    if zoomlevel == maxzoom and event.delta == 120: #limit beim kompletten reinzoomen
+        zoomer(zoomin_multiplier,event.x,event.y)
         zoomlevel += 1
-    if zoomlevel == minzoom and event.delta == -120:
-        zoomer(0.9,event.x,event.y)
+    if zoomlevel == minzoom and event.delta == -120: #anderes limit
+        zoomer(zoomout_mulitplier,event.x,event.y)
         zoomlevel -= 1
-    print(zoomlevel)
+    #print(zoomlevel)
 
 def zoomer(zoomamount,eventx,eventy):
     for x in canvas.find_all(): # selects all canvas items
@@ -76,15 +77,15 @@ def zoomer(zoomamount,eventx,eventy):
         #canvas.coords(x,x0,y0,x1,y1) mit einer unbekannten Menge an Punkten
 
 def placeImage(event):
+    print("yay")
     global photobuffer
     img = photobuffer["testbild"]
     canvas.create_image(event.x, event.y, image = img)
 
-photobuffer_raw = {}
-photobuffer_raw["testbild"] = Image.open("testbild.png")
 
+photobuffer_raw = {}
 photobuffer = {}
-photobuffer["testbild"] = ImageTk.Photoimage(photobuffer_raw["testbild"])
+
 
 root = Tk()
 root.geometry("1000x600")
@@ -94,12 +95,13 @@ root.rowconfigure(0, weight=1)
 canvas = Canvas(root)
 canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 canvas.bind("<Button-1>", savePosn)
-canvas.bild("<Button-2>", placeImage)
+canvas.bind("<Button-3>", placeImage) #Btn1 = links, btn2 = mitte, btn3 = rechts
 canvas.bind("<B1-Motion>", move)
 canvas.bind("<MouseWheel>", zoom)
 canvas.create_polygon(10, 10, 200, 50, 90, 150, 50, 80, 120, 55, fill='red', outline='blue')
 canvas.create_rectangle(40,30,110,50)
 
-
+photobuffer_raw["testbild"] = Image.open("testbild.png")
+photobuffer["testbild"] = ImageTk.PhotoImage(photobuffer_raw["testbild"])
 
 root.mainloop()
