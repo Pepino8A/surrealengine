@@ -1,7 +1,20 @@
 from tkinter import *
-from tkinter import ttk
+#from tkinter import ttk
 from PIL import ImageTk, Image
-from math import sqrt
+from math import sqrt,pow
+
+class TestImage:
+
+    def __init__(self, xPos, yPos, rawImagePath): #konstruktor
+        self.xPos = xPos
+        self.yPos = yPos
+        try:
+            self.rawImage = Image.open(rawImagePath)
+            self.processedImage = ImageTk.PhotoImage(Image.open(rawImagePath))
+        except:
+            print("~~~~Bild konnten nicht geladen werden. Prüfe den Pfad und stelle sicher, das PIL installiert ist~~~~")
+    
+
 
 def savePosn(event):
     global lastx, lasty
@@ -14,7 +27,7 @@ def move(event):
 
     for x in canvas.find_all(): #selects all canvas items
         canvas.move(x, movex, movey)
-    #canvas.move(poly, dx, dy)
+
     savePosn(event)
 
 
@@ -46,13 +59,13 @@ def zoom(event):
     if zoomlevel == minzoom and event.delta == -120: #anderes limit
         zoomer(zoomout_mulitplier,event.x,event.y)
         zoomlevel -= 1
-    #print(zoomlevel)
+    print(zoomlevel)
 
 def zoomer(zoomamount,eventx,eventy):
     for x in canvas.find_all(): # selects all canvas items
         #print(f"{x} canvas coords", canvas.coords(x)) # gibt einen dict zurück
         newcoords = []
-        for y in range(len(canvas.coords(x))): #geht durch die *länge* der liste
+        for y in range(len(canvas.coords(x))): #geht durch die *länge* der liste an koordinaten, die eine Figur ausmacht
 
             if y % 2 == 0: # alle koordinatenpaare | canvas.coords(x)[y] (x koord) und canvas.coords(x)[y+1] (y koord) um auf das aktuelle Koordinatenpaar zuzugreifen
                 dx = canvas.coords(x)[y] - eventx #Kathethen des Dreiecks zwischen der Maus und einem Punkt
@@ -78,21 +91,35 @@ def zoomer(zoomamount,eventx,eventy):
 
 def placeImage(event):
     print("yay")
-    global photobuffer
-    img = photobuffer["testbild"]
+    # global photobuffer
+    global classes
+    global testbuffer
+    # img = photobuffer["testbild"]
+    # canvas.create_image(event.x, event.y, image = img)
+
+    img = classes[0].rawImage
+    width, height = img.size
+
+    print(width, height)
+
+    img = img.resize([300,300], Image.NEAREST)
+    img = ImageTk.PhotoImage(img)
+    testbuffer.append(img)
     canvas.create_image(event.x, event.y, image = img)
 
 
 photobuffer_raw = {}
 photobuffer = {}
+testbuffer = []
 
 
 root = Tk()
-root.geometry("1000x600")
-root.columnconfigure(0, weight=1)
+root.geometry("1280x720")
+root.columnconfigure(0, weight=2)
+root.columnconfigure(1, weight=1)
 root.rowconfigure(0, weight=1)
 
-canvas = Canvas(root)
+canvas = Canvas(root, bg="white")
 canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 canvas.bind("<Button-1>", savePosn)
 canvas.bind("<Button-3>", placeImage) #Btn1 = links, btn2 = mitte, btn3 = rechts
@@ -104,4 +131,21 @@ canvas.create_rectangle(40,30,110,50)
 photobuffer_raw["testbild"] = Image.open("testbild.png")
 photobuffer["testbild"] = ImageTk.PhotoImage(photobuffer_raw["testbild"])
 
+classes = []
+classes.append(TestImage(0,0,"testbild.png"))
+classes.append(TestImage(300,300,"testbild.png"))
+
+canvas.create_image(classes[1].xPos,classes[1].yPos,image = classes[1].processedImage)
+
+print(classes)
+
+sidebar = Frame(root, bg="RED")
+sidebar.grid(column=1, row=0)
+
+testlabel = Label(sidebar, text = "test", bg="Red")
+testlabel.grid(column=0 , row=0)
+
 root.mainloop()
+
+
+
