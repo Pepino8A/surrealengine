@@ -2,10 +2,11 @@ from tkinter import *
 #from tkinter import ttk
 import keyboard
 import datetime
-
+from math import ceil,copysign
 from PIL import ImageTk, Image
+import os
 
-# TODO remove all +10 and -10 attributes in the players collision system and make them dynamic
+# TODO remove all +10 and -10 attributes in the players collision system and make them dynamically sized
 
 root = Tk()
 root.geometry("1280x720")
@@ -15,7 +16,9 @@ root.rowconfigure(0, weight=1)
 canvas = Canvas(root)
 canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 canvas.create_rectangle(10,10,40,40, fill="red", tags="wall")
-canvas.create_rectangle(500,500,400,350, fill= "blue", tags="wall")
+canvas.create_rectangle(500,500,400,-350, fill= "blue", tags="wall")
+canvas.create_text(450,290, text = "100", tags= "other")
+#canvas.create_rectangle(390,500,300,350, fill="yellow", tags="wall")
 img = ImageTk.PhotoImage(Image.open("testbild.png"))
 canvas.create_image(0, 600, image= img, tags="wall")
 
@@ -26,12 +29,15 @@ class Player():
         self.yPos = y
         self.xSpeed = 0
         self.ySpeed = 0
+        self.width = 100
+        self.height = 100
+
     def move(self, xAcceleration, yAcceleration):
 
         acceleration = 3
         maxspeed = 40
         fadeout = 0.8
-
+        
         match xAcceleration:
             case -1:
                 if -maxspeed < self.xSpeed:
@@ -54,23 +60,34 @@ class Player():
                 self.ySpeed *= fadeout
         self.yPos += self.ySpeed
 
-    def collisiondetection(self):
-        collision_objects = canvas.find_overlapping(self.xPos+10, self.yPos+10, self.xPos-10,self.yPos-10)
+    def collsionchecker(self):
+        collision_objects = canvas.find_overlapping(self.xPos+self.width/2, self.yPos+self.height/2, self.xPos-self.width/2,self.yPos-self.height/2)
         for x in collision_objects:
             tag = canvas.gettags(x)
 
             if tag[0] == "wall":
                 bounding_box = canvas.bbox(x)
                 wallx1, wally1, wallx2, wally2 = bounding_box
-                print(wallx1,wally1,wallx2,wally2)
-                print(self.xPos,self.yPos)
 
+                xoverlap = max(0, min(wallx2, self.xPos+self.width/2) - max(wallx1, self.xPos-self.width/2)) # Checks the x-Axis -> y-Axis collision detection
+                yoverlap = max(0, min(wally2, self.yPos+self.height/2) - max(wally1, self.yPos-self.height/2)) # Checks the y-Axis -> x-Axis collision detection
 
-                self.xPos -= self.xSpeed
-                self.xSpeed = 0
-                self.yPos -= self.ySpeed
-                self.ySpeed = 0
+                if xoverlap < yoverlap:
+                    print(xoverlap,yoverlap)
+                    if self.xSpeed > 0:
+                        self.xPos -= (xoverlap + 1)
+                    else: 
+                        self.xPos += (xoverlap + 1)
+                    self.xSpeed = 0
 
+                else:
+                    print(xoverlap, yoverlap)
+                    if self.ySpeed > 0:
+                        self.yPos -= (yoverlap + 1)
+                    else: 
+                        self.yPos += (yoverlap + 1)
+                    self.ySpeed = 0
+        
     
 class Camera():
     def __init__(self, x, y):
@@ -89,10 +106,11 @@ class Camera():
         spieler.xPos -= xDistance
         spieler.yPos -= yDistance
 
-
-xcenter = 640
-ycenter = 360
-print (xcenter,ycenter)
+screenwidth = root.winfo_screenwidth()
+screenheight = root.winfo_screenheight()
+xcenter = screenwidth/2
+ycenter = screenheight/2
+print(xcenter,ycenter)
 
 spieler = Player(xcenter,ycenter)
 kamera = Camera(xcenter,ycenter)
@@ -108,10 +126,9 @@ def gameloop():
 
     canvas.delete("player")
     keyboard_input()
-    canvas.create_rectangle(spieler.xPos-10,spieler.yPos-10,spieler.xPos+10,spieler.yPos+10,tags="player")
+    canvas.create_rectangle(spieler.xPos-(spieler.width/2),spieler.yPos-(spieler.height/2),spieler.xPos+(spieler.width/2),spieler.yPos+(spieler.height/2),tags="player")
     
-    spieler.collisiondetection()
-
+    spieler.collsionchecker()
 
     kamera.move(spieler.xPos, spieler.yPos)
 
@@ -127,7 +144,7 @@ def gameloop():
     end_time = datetime.datetime.now() #NO CODE BEYOND THIS CODE
     difference_time = (end_time - start_time)
     execution_time = difference_time.total_seconds() * 1000
-    wait_time = 16 - round(execution_time)
+    wait_time = 16 - ceil(execution_time)
     #print(wait_time)
     canvas.after(wait_time, gameloop)
 
@@ -148,7 +165,6 @@ def keyboard_input():
     spieler.move(x,y)
 
 def mouse_input():
-
     x = root.winfo_pointerx() - root.winfo_rootx()
     y = root.winfo_pointery() - root.winfo_rooty()
     return x,y
