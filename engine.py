@@ -9,10 +9,12 @@ class TestImage:
         self.xPos = xPos
         self.yPos = yPos
         try:
-            self.rawImage = Image.open(rawImagePath)
+            #self.rawImage = Image.open(rawImagePath)
             self.processedImage = ImageTk.PhotoImage(Image.open(rawImagePath))
         except:
             print("~~~~Bild konnten nicht geladen werden. Prüfe den Pfad und stelle sicher, das PIL installiert ist~~~~")
+        canvas.create_image(self.xPos,self.yPos, image = self.processedImage)
+
     
 
 
@@ -31,7 +33,7 @@ def move(event):
     savePosn(event)
 
 
-zoomlevel = 0
+""" zoomlevel = 0 //scrapped zoom
 def zoom(event):
     # event.delta ist +-120
 
@@ -87,7 +89,7 @@ def zoomer(zoomamount,eventx,eventy):
             s += f",{z}"
         s += ")"
         exec(s)
-        #canvas.coords(x,x0,y0,x1,y1) mit einer unbekannten Menge an Punkten
+        #canvas.coords(x,x0,y0,x1,y1) mit einer unbekannten Menge an Punkten """
 
 def placeImage(event):
     print("yay")
@@ -96,16 +98,7 @@ def placeImage(event):
     global testbuffer
     # img = photobuffer["testbild"]
     # canvas.create_image(event.x, event.y, image = img)
-
-    img = classes[0].rawImage
-    width, height = img.size
-
-    print(width, height)
-
-    img = img.resize([300,300], Image.NEAREST)
-    img = ImageTk.PhotoImage(img)
-    testbuffer.append(img)
-    canvas.create_image(event.x, event.y, image = img)
+    classes.append(TestImage(event.x,event.y, "testbild.png"))
 
 
 photobuffer_raw = {}
@@ -115,7 +108,7 @@ testbuffer = []
 
 root = Tk()
 root.geometry("1280x720")
-root.columnconfigure(0, weight=2)
+root.columnconfigure(0, weight=3)
 root.columnconfigure(1, weight=1)
 root.rowconfigure(0, weight=1)
 
@@ -124,7 +117,7 @@ canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 canvas.bind("<Button-1>", savePosn)
 canvas.bind("<Button-3>", placeImage) #Btn1 = links, btn2 = mitte, btn3 = rechts
 canvas.bind("<B1-Motion>", move)
-canvas.bind("<MouseWheel>", zoom)
+#canvas.bind("<MouseWheel>", zoom)
 canvas.create_polygon(10, 10, 200, 50, 90, 150, 50, 80, 120, 55, fill='red', outline='blue')
 canvas.create_rectangle(40,30,110,50)
 
@@ -135,15 +128,20 @@ classes = []
 classes.append(TestImage(0,0,"testbild.png"))
 classes.append(TestImage(300,300,"testbild.png"))
 
-canvas.create_image(classes[1].xPos,classes[1].yPos,image = classes[1].processedImage)
+#canvas.create_image(classes[1].xPos,classes[1].yPos,image = classes[1].processedImage)
 
 print(classes)
 
 sidebar = Frame(root, bg="RED")
 sidebar.grid(column=1, row=0)
 
+
 testlabel = Label(sidebar, text = "test", bg="Red")
-testlabel.grid(column=0 , row=0)
+testlabel.grid(column=0 , row=1)
+
+undobutton = Button(sidebar,text= "undo", command = lambda: classes.pop())
+undobutton.grid(column = 0, row = 0)
+
 
 root.mainloop()
 
