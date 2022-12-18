@@ -1,9 +1,93 @@
 [
     {
-        "type": "wall",
-        "x1": 15976.0,
-        "y1": 5403.0,
-        "x2": 16478.0,
-        "y2": 5905.0
+        "type": "zombie",
+        "x": 403.0,
+        "y": 166.0,
+        "image": "img/Standardzombie1.png",
+        "deadimage": "img/Standardzombie1-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": 183.0,
+        "y": 345.0,
+        "image": "img/Standardzombie1.png",
+        "deadimage": "img/Standardzombie1-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": 72.0,
+        "y": 175.0,
+        "image": "img/Standardzombie1.png",
+        "deadimage": "img/Standardzombie1-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": 508.0,
+        "y": 121.0,
+        "image": "img/Standardzombie1.png",
+        "deadimage": "img/Standardzombie1-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": 487.0,
+        "y": 400.0,
+        "image": "img/Standardzombie1.png",
+        "deadimage": "img/Standardzombie1-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": 826.0,
+        "y": 376.0,
+        "image": "img/Standardzombie2.png",
+        "deadimage": "img/Standardzombie2-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": 411.0,
+        "y": 574.0,
+        "image": "img/Standardzombie2.png",
+        "deadimage": "img/Standardzombie2-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": -332.0,
+        "y": 590.0,
+        "image": "img/Standardzombie2.png",
+        "deadimage": "img/Standardzombie2-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": -707.0,
+        "y": 127.0,
+        "image": "img/Wurfzombie.png",
+        "deadimage": "img/Wurfzombie-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": -659.0,
+        "y": -100.0,
+        "image": "img/Wurfzombie.png",
+        "deadimage": "img/Wurfzombie-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": -136.0,
+        "y": -326.0,
+        "image": "img/Wurfzombie.png",
+        "deadimage": "img/Wurfzombie-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": 153.0,
+        "y": -378.0,
+        "image": "img/Wurfzombie.png",
+        "deadimage": "img/Wurfzombie-Tod.png"
+    },
+    {
+        "type": "zombie",
+        "x": -264.0,
+        "y": -459.0,
+        "image": "img/Wurfzombie.png",
+        "deadimage": "img/Wurfzombie-Tod.png"
     }
 ]

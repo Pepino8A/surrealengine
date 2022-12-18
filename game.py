@@ -16,13 +16,14 @@ root = Tk()
 root.geometry("1280x720")
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
+root.title("Chainsaw Bazooka")
 
 
 
 canvas = Canvas(root)
 canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 
-mapimg = ImageTk.PhotoImage(Image.open("img/realmap.png"))
+mapimg = ImageTk.PhotoImage(Image.open("img/Real-Mapv2.png"))
 canvas.create_image(0,0, image= mapimg, tags= "other", anchor="nw")
 
 imagebuffer = []
@@ -37,11 +38,20 @@ class Player():
         self.height = 100
         self.raw_image = Image.open(imagepath)
         self.shoot_cooldown = 100
+        self.hp = 5
+        self.iframes = 30
+        self.heart = ImageTk.PhotoImage(Image.open("img/herz.png"))
+        self.blackheart = ImageTk.PhotoImage(Image.open("img/herzschwarz.png"))
 
     def move(self, xMovement, yMovement, acceleration = 1.5):
         
         if self.shoot_cooldown != 0:
             self.shoot_cooldown -= 1
+        if self.iframes != 0:
+            self.iframes -= 1
+        
+        if self.hp <= 0:
+            return
         #acceleration = 1.5
         maxspeed = 15
         fadeout = 0.8
@@ -95,7 +105,13 @@ class Player():
                     else: 
                         self.yPos += (yoverlap + 1)
                     self.ySpeed = 0
-                
+
+            if tag[0] == "zombie" and self.iframes == 0:
+                self.hp -= 1
+                self.iframes = 30
+                hurtsound = sa.WaveObject.from_wave_file("sounds/Protagonistdamagesound.wav")
+                hurtsound.play()
+
         
     def imagerenderer(self):
 
@@ -111,10 +127,54 @@ class Player():
         canvas.create_image(self.xPos,self.yPos, image=rendered_rotated_image,tags="player")
         imagebuffer.append(rendered_rotated_image)  
 
+        yoffset = 950
+        
+        match self.hp:
+            case 1:
+                canvas.create_image(xcenter-100,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter-50,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter+50,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter+100,yoffset, image= self.blackheart, tags="player")
+            case 2:
+                canvas.create_image(xcenter-100,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter-50,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter+50,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter+100,yoffset, image= self.blackheart, tags="player")
+            case 3:
+                canvas.create_image(xcenter-100,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter-50,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter+50,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter+100,yoffset, image= self.blackheart, tags="player")
+            case 4:
+                canvas.create_image(xcenter-100,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter-50,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter+50,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter+100,yoffset, image= self.blackheart, tags="player")
+            case 5:
+                canvas.create_image(xcenter-100,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter-50,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter+50,yoffset, image= self.heart, tags="player")
+                canvas.create_image(xcenter+100,yoffset, image= self.heart, tags="player")
+            case _ :
+                canvas.create_image(xcenter-100,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter-50,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter+50,yoffset, image= self.blackheart, tags="player")
+                canvas.create_image(xcenter+100,yoffset, image= self.blackheart, tags="player")
+                self.raw_image = Image.open("img/Player_Tod.png")
+                canvas.create_text(xcenter, 350, text="You Loose!", fill = "red", tags="player")
+
     def shoot(self):
         if self.shoot_cooldown == 0:
             bullets.append(Bullet("img/Blade.png",25))
             self.shoot_cooldown = 100
+            shotsound = sa.WaveObject.from_wave_file("sounds/Shotsound.wav")
+            shotsound.play()
 
 class Camera():
     def __init__(self, x, y):
@@ -204,12 +264,14 @@ class Zombie():
                 case "bullet":
                     self.raw_image = self.deadtimage
                     self.decay = 1
-                    wave_obj = sa.WaveObject.from_wave_file("sounds/testsound.wav")
-                    wave_obj.play()
+                    zombietod = sa.WaveObject.from_wave_file("sounds/Zombietodsound.wav")
+                    zombietod.play()
                     
 
 
     def tick(self):
+        if sqrt(pow((self.xPos - spieler.yPos),2) + pow((self.yPos-spieler.yPos),2)) > 1500:
+            return
         if self.decay == 0:
             self.move()
             self.collisionchecker()
@@ -276,8 +338,9 @@ xcenter = screenwidth/2
 ycenter = screenheight/2
 print(xcenter,ycenter)
 
-spieler = Player(xcenter,ycenter,"img/player-2.png")
+spieler = Player(14500,10100,"img/player-2.png")
 kamera = Camera(xcenter,ycenter)
+
 
 
 def gameloop():
@@ -360,6 +423,7 @@ def initialize():
             zombies.append(Zombie(obj["x"],obj["y"],obj["image"],obj["deadimage"]))
         if obj["type"] == "wall":
             canvas.create_rectangle(obj["x1"],obj["y1"],obj["x2"],obj["y2"],fill="",outline= "",tags= "wall")
+    kamera.move(14500,10100)
 
 initialize()
 gameloop()

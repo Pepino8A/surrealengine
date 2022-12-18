@@ -77,6 +77,7 @@ root.geometry("1280x720")
 root.columnconfigure(0, weight=3)
 root.columnconfigure(1, weight=1)
 root.rowconfigure(0, weight=1)
+root.title("Chainsaw Bazooka Editor")
 
 canvas = Canvas(root, bg="white")
 canvas.grid(column=0, row=0, sticky=(N, W, E, S))
@@ -85,7 +86,7 @@ canvas.bind("<Button-3>", placeObject) #Btn1 = links, btn2 = mitte, btn3 = recht
 canvas.bind("<B1-Motion>", move)
 
 
-mapimg = ImageTk.PhotoImage(Image.open("img/realmap.png"))
+mapimg = ImageTk.PhotoImage(Image.open("img/Real-Mapv2.png"))
 canvas.create_image(0,0, image= mapimg, tags= "other", anchor="nw")
 
 
