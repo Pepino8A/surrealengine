@@ -6,6 +6,7 @@ from copy import deepcopy
 from math import atan2, degrees, sin, cos, sqrt, pow
 from PIL import ImageTk, Image
 import simpleaudio as sa 
+import json
 
 Image.MAX_IMAGE_PIXELS = 300000001
 
@@ -20,14 +21,9 @@ root.rowconfigure(0, weight=1)
 
 canvas = Canvas(root)
 canvas.grid(column=0, row=0, sticky=(N, W, E, S))
-canvas.create_rectangle(10,10,40,40, fill="red", tags="wall")
-canvas.create_rectangle(500,500,400,-350, fill= "blue", tags="wall")
-canvas.create_text(450,290, text = "100", tags= "other")
-canvas.create_rectangle(410,500,300,350, fill="yellow", tags="wall")
-img = ImageTk.PhotoImage(Image.open("testbild.png"))
-canvas.create_image(0, 600, image= img, tags="wall")
-#mapimg = ImageTk.PhotoImage(Image.open("img/realmap.png"))
-#canvas.create_image(0,0, image= mapimg, tags= "other")
+
+mapimg = ImageTk.PhotoImage(Image.open("img/realmap.png"))
+canvas.create_image(0,0, image= mapimg, tags= "other", anchor="nw")
 
 imagebuffer = []
 
@@ -145,12 +141,13 @@ class Camera():
             obj.yPos -= yDistance
 
 class Zombie():
-    def __init__(self, x, y, imagepath):
+    def __init__(self, x, y, imagepath,deadimagepath):
         self.xPos = x
         self.yPos = y
         self.width = 100
         self.height = 100
         self.raw_image = Image.open(imagepath)
+        self.deadtimage = Image.open(deadimagepath)
         self.xMovement = 0
         self.yMovement = 0
         self.decay = 0
@@ -186,27 +183,8 @@ class Zombie():
                     bounding_box = canvas.bbox(x)
                     wallx1, wally1, wallx2, wally2 = bounding_box
 
-                    xSpeed = abs(self.xPos - self.xMovement)
-                    ySpeed = abs(self.yPos - self.yMovement)
-
-                    xoverlap = max(0, min(wallx2, self.xPos+self.width/2) - max(wallx1, self.xPos-self.width/2)) # Checks the x-Axis -> y-Axis collision detection
-                    yoverlap = max(0, min(wally2, self.yPos+self.height/2) - max(wally1, self.yPos-self.height/2)) # Checks the y-Axis -> x-Axis collision detection
-
-                    if xoverlap < yoverlap:
-                        #print(xoverlap,yoverlap)
-                        if xSpeed > 0:
-                            self.xPos -= (xoverlap + 1)
-                        else: 
-                            self.xPos += (xoverlap + 1)
-                        xSpeed = 0
-
-                    else:
-                        #print(xoverlap, yoverlap)
-                        if ySpeed > 0:
-                            self.yPos -= (yoverlap + 1)
-                        else: 
-                            self.yPos += (yoverlap + 1)
-                        ySpeed = 0
+                    self.xPos -= (self.xMovement * 1.01)
+                    self.yPos -= (self.yMovement * 1.01)
 
                 case "zombie":
                     bounding_box = canvas.bbox(x)
@@ -224,7 +202,7 @@ class Zombie():
                     self.yPos += (yDistance * 0.05)
 
                 case "bullet":
-                    self.raw_image = Image.open("img/Standardzombie2-Tod.png")
+                    self.raw_image = self.deadtimage
                     self.decay = 1
                     wave_obj = sa.WaveObject.from_wave_file("sounds/testsound.wav")
                     wave_obj.play()
@@ -342,7 +320,7 @@ def gameloop():
     wait_time = 16 - round(execution_time)
     if wait_time <= 0:
         wait_time = 0
-    print(wait_time)
+    #print(wait_time)
     canvas.after(wait_time, gameloop)
 
 
@@ -367,7 +345,10 @@ def mouse_input():
     y = root.winfo_pointery() - root.winfo_rooty()
     return x,y
 
-imported_objects = [{"type" : "zombie", "x": 500, "y" : 300, "image": "img/Standardzombie2.png"},{"type" : "zombie", "x": 900, "y" : 300, "image": "img/testarrow.png"},{"type" : "zombie", "x": 550, "y" : 200, "image": "img/Standardzombie2.png"}]
+#imported_objects = [{"type" : "zombie", "x": 500, "y" : 300, "image": "img/Standardzombie2.png", "deadimage": "img/Standardzombie2-Tod.png"},{"type" : "zombie", "x": 900, "y" : 400, "image": "img/testarrow.png", "deadimage": "img/Standardzombie2-Tod.png"},{"type" : "zombie", "x": 550, "y" : 200, "image": "img/Standardzombie2.png", "deadimage": "img/Standardzombie2-Tod.png"}]
+
+f = open("data.json")
+imported_objects = json.load(f)
 zombies = list()
 bullets = list()
 walls = list()
@@ -376,7 +357,9 @@ walls = list()
 def initialize():
     for obj in imported_objects:
         if obj["type"] == "zombie":
-            zombies.append(Zombie(obj["x"],obj["y"],obj["image"]))
+            zombies.append(Zombie(obj["x"],obj["y"],obj["image"],obj["deadimage"]))
+        if obj["type"] == "wall":
+            canvas.create_rectangle(obj["x1"],obj["y1"],obj["x2"],obj["y2"],fill="",outline= "",tags= "wall")
 
 initialize()
 gameloop()
