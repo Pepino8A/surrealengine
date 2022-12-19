@@ -377,6 +377,14 @@ def gameloop():
 
     kamera.move(spieler.xPos, spieler.yPos)
 
+    global mainthemeplayer
+    if mainthemeplayer.is_playing():
+        pass
+    else:
+        maintheme = sa.WaveObject.from_wave_file("sounds/Chainsaw-BazookaOSTv1.wav")
+        mainthemeplayer = maintheme.play()
+
+        
 
     end_time = datetime.datetime.now() #NO CODE BEYOND THIS CODE
     execution_time = (end_time - start_time).total_seconds() * 1000
@@ -418,12 +426,16 @@ walls = list()
 
 
 def initialize():
+    global maintheme
+    global mainthemeplayer
     for obj in imported_objects:
         if obj["type"] == "zombie":
             zombies.append(Zombie(obj["x"],obj["y"],obj["image"],obj["deadimage"]))
         if obj["type"] == "wall":
             canvas.create_rectangle(obj["x1"],obj["y1"],obj["x2"],obj["y2"],fill="",outline= "",tags= "wall")
     kamera.move(14500,10100)
+    maintheme = sa.WaveObject.from_wave_file("sounds/Chainsaw-BazookaOSTv1.wav")
+    mainthemeplayer = maintheme.play()
 
 initialize()
 gameloop()
