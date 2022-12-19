@@ -61,7 +61,10 @@ def placeObject(event):
         case 2:
             classes.append(("zombie",CustomImage(event.x,event.y, "img/Wurfzombie.png","img/Wurfzombie-Tod.png")))
             exportinfo.append({"type":"zombie","x": event.x - ogXoffset, "y": event.y - ogYoffset, "image": "img/Wurfzombie.png", "deadimage":"img/Wurfzombie-Tod.png"})
-        case 3: 
+        case 3:
+            classes.append(("zombie",CustomImage(event.x,event.y, "img/Schildzombie.png","img/Schildzombie-Tod.png")))
+            exportinfo.append({"type":"zombie","x": event.x - ogXoffset, "y": event.y - ogYoffset, "image": "img/Schildzombie.png", "deadimage":"img/Schildzombie-Tod.png"})
+        case 4: 
             applytorectangle(event.x,event.y)
 
 
@@ -103,7 +106,7 @@ def mode(event):
     setmode = modeselect.curselection()[0]
     print(setmode)
 
-modeselect_var = StringVar(sidebar,"Zombie1 Zombie2 Wurfzombie Wand")
+modeselect_var = StringVar(sidebar,"Zombie1 Zombie2 Wurfzombie Schildzombie Wand")
 modeselect = Listbox(sidebar, listvariable=modeselect_var)
 modeselect.grid(column=0 , row=1)
 modeselect.bind("<<ListboxSelect>>",mode)
